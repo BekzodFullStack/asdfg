@@ -1,30 +1,35 @@
 import streamlit as st
 import requests
+#uzgarish
+# API sozlamalari
+API_URL = 'https://api.api-ninjas.com/v1/objectdetection'
+API_KEY = 'aL6Cpssn5jwMC2UHFlf7yQ==LCM8BPQORDjKhi6G'
 
-# API kalitni kiriting
-API_KEY = "aL6Cpssn5jwMC2UHFlf7yQ==LCM8BPQORDjKhi6G"
-
-# API manzili (bu yerda mos API URLini kiriting)
-API_URL = "https://api.example.com/data"  # APIingiz URLini almashtiring
+def detect_objects(image_file):
+    """Rasmni API orqali aniqlash"""
+    files = {'image': image_file}
+    headers = {'X-Api-Key': API_KEY}
+    response = requests.post(API_URL, files=files, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {'error': f"API qaytargan xato: {response.status_code}, {response.text}"}
 
 # Streamlit interfeysi
-st.title("Streamlit API Ulanish Demo")
-st.sidebar.header("So'rov parametrlarini kiriting")
+st.title("Rasmni Aniqlash Ilovasi")
+st.write("Yuklangan rasmni API orqali aniqlaydi va natijani JSON formatida qaytaradi.")
 
-# Foydalanuvchi parametrlarini qabul qilish
-param1 = st.sidebar.text_input("Parametr 1", "default1")
-param2 = st.sidebar.text_input("Parametr 2", "default2")
+# Rasm yuklash uchun komponent
+uploaded_file = st.file_uploader("Rasm yuklang (JPEG yoki PNG)", type=["jpg", "jpeg", "png"])
 
-if st.sidebar.button("So'rov yuborish"):
-    # APIga so'rov yuborish
-    headers = {"Authorization": f"Bearer {API_KEY}"}
-    params = {"param1": param1, "param2": param2}
-    response = requests.get(API_URL, headers=headers, params=params)
+if uploaded_file is not None:
+    # Rasmni ko'rsatish
+    st.image(uploaded_file, caption="Yuklangan rasm", use_column_width=True)
 
-    # Javobni ko'rsatish
-    if response.status_code == 200:
-        data = response.json()
-        st.success("Ma'lumot muvaffaqiyatli olindi!")
-        st.json(data)  # Ma'lumotlarni ko'rsatish
-    else:
-        st.error(f"Xato: {response.status_code} - {response.text}")
+    # API orqali aniqlash
+    with st.spinner("Rasmni aniqlash jarayoni..."):
+        result = detect_objects(uploaded_file)
+
+    # Natijani ko'rsatish
+    st.subheader("Aniqlash natijasi:")
+    st.json(result)
