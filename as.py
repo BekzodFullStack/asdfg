@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-#drftghjk
+#dfghjkmgfdgh
 # API sozlamalari
 API_URL = 'https://api.api-ninjas.com/v1/objectdetection'
 API_KEY = 'aL6Cpssn5jwMC2UHFlf7yQ==LCM8BPQORDjKhi6G'
@@ -9,33 +9,40 @@ def detect_objects(image_file):
     """Rasmni API orqali aniqlash"""
     files = {'image': image_file}
     headers = {'X-Api-Key': API_KEY}
-    response = requests.post(API_URL, files=files, headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return {'error': f"API qaytargan xato: {response.status_code}, {response.text}"}
+    try:
+        response = requests.post(API_URL, files=files, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {'error': f"API xatosi: {response.status_code}, {response.text}"}
+    except Exception as e:
+        return {'error': f"APIga ulanishda xato: {str(e)}"}
 
 # Streamlit interfeysi
 st.title("Rasmni Aniqlash Ilovasi")
-st.write("Yuklangan rasmni API orqali aniqlaydi va natijani qisqa ma'lumot bilan qaytaradi.")
+st.write("Yuklangan rasmni API orqali aniqlaydi va aniqlik darajasini foizda ko‘rsatadi.")
 
 # Rasm yuklash uchun komponent
 uploaded_file = st.file_uploader("Rasm yuklang (JPEG yoki PNG)", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    # Rasmni ko'rsatish
+    # Yuklangan rasmni ko‘rsatish
     st.image(uploaded_file, caption="Yuklangan rasm", use_column_width=True)
 
     # API orqali aniqlash
     with st.spinner("Rasmni aniqlash jarayoni..."):
         result = detect_objects(uploaded_file)
 
-    # Natijani qisqa ko'rinishda chiqarish
+    # Natijani ko‘rsatish
     st.subheader("Aniqlash natijasi:")
     if 'error' in result:
         st.error(result['error'])
     else:
-        for obj in result:
-            object_name = obj.get('object', 'Noma’lum obyekt')
-            confidence = obj.get('confidence', 0) * 100  # Foizga aylantirish
-            st.write(f"Bu {object_name}, aniqlik: {confidence:.2f}%")
+        # Aniqlangan obyektlar va aniqlik darajasi
+        if len(result) == 0:
+            st.write("Hech qanday obyekt aniqlanmadi.")
+        else:
+            for obj in result:
+                object_name = obj.get('object', 'Noma’lum obyekt')
+                confidence = obj.get('confidence', 0) * 100  # Aniqlik darajasini foizga aylantirish
+                st.write(f"Bu {object_name}, aniqlik: {confidence:.2f}%")
