@@ -32,4 +32,4 @@ if uploaded_file is not None:
 
     # Natijani ko'rsatish
     st.subheader("Aniqlash natijasi:")
-    st.json(result)
+    st(result)
