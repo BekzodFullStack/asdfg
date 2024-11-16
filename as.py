@@ -1,7 +1,6 @@
-
 import streamlit as st
 import requests
-#uzgarishlar
+#uzgarish
 # API sozlamalari
 API_URL = 'https://api.api-ninjas.com/v1/objectdetection'
 API_KEY = 'aL6Cpssn5jwMC2UHFlf7yQ==LCM8BPQORDjKhi6G'
@@ -16,7 +15,8 @@ def detect_objects(image_file):
     else:
         return {'error': f"API qaytargan xato: {response.status_code}, {response.text}"}
 
-st.title("Rasmni Aniqlash")
+# Streamlit interfeysi
+st.title("Rasmni Aniqlash Ilovasi")
 st.write("Yuklangan rasmni API orqali aniqlaydi va natijani JSON formatida qaytaradi.")
 
 # Rasm yuklash uchun komponent
@@ -32,4 +32,4 @@ if uploaded_file is not None:
 
     # Natijani ko'rsatish
     st.subheader("Aniqlash natijasi:")
-    st(result)
+    st.json(result)
