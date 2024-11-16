@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-#uzgarish
+
 # API sozlamalari
 API_URL = 'https://api.api-ninjas.com/v1/objectdetection'
 API_KEY = 'aL6Cpssn5jwMC2UHFlf7yQ==LCM8BPQORDjKhi6G'
@@ -17,7 +17,7 @@ def detect_objects(image_file):
 
 # Streamlit interfeysi
 st.title("Rasmni Aniqlash Ilovasi")
-st.write("Yuklangan rasmni API orqali aniqlaydi va natijani JSON formatida qaytaradi.")
+st.write("Yuklangan rasmni API orqali aniqlaydi va aniqlash ehtimolligini ko'rsatadi.")
 
 # Rasm yuklash uchun komponent
 uploaded_file = st.file_uploader("Rasm yuklang (JPEG yoki PNG)", type=["jpg", "jpeg", "png"])
@@ -30,6 +30,15 @@ if uploaded_file is not None:
     with st.spinner("Rasmni aniqlash jarayoni..."):
         result = detect_objects(uploaded_file)
 
-    # Natijani ko'rsatish
+    # Natijani qayta ishlash va ko'rsatish
     st.subheader("Aniqlash natijasi:")
-    st.json(result)
+    if "error" in result:
+        st.error(result["error"])
+    else:
+        if "objects" in result and result["objects"]:
+            for obj in result["objects"]:
+                object_name = obj.get("label", "Aniqlanmagan obyekt")
+                confidence = obj.get("confidence", 0) * 100  # Ehtimollikni foizga o'zgartirish
+                st.write(f"**{object_name}**: {confidence:.2f}%")
+        else:
+            st.write("Hech qanday obyekt aniqlanmadi.")
